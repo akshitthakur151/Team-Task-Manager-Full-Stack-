@@ -2,14 +2,16 @@
 // Creates demo user: demo@taskflow.com / demo123
 const path = require('path');
 process.env.DB_PATH = path.join(__dirname, 'data');
-const bcrypt = require('./node_modules/bcryptjs');
+const bcrypt = require('bcryptjs');
 const db = require('./models/db');
 
-async function seed() {
+async function seedDatabase() {
   try {
-    // Demo user
     const existing = await db.users.findOne({ email: 'demo@taskflow.com' });
-    if (existing) { console.log('Demo user already exists'); return; }
+    if (existing) {
+      console.log('Demo user already exists');
+      return;
+    }
 
     const hash = await bcrypt.hash('demo123', 10);
     const user = await db.users.insert({
@@ -36,8 +38,16 @@ async function seed() {
     }
     console.log('Seed complete! Login: demo@taskflow.com / demo123');
   } catch (err) {
+    if (err.errorType === 'uniqueViolated') {
+      console.log('Demo data already seeded');
+      return;
+    }
     console.error('Seed error:', err);
   }
 }
 
-seed();
+if (require.main === module) {
+  seedDatabase();
+}
+
+module.exports = { seedDatabase };

@@ -3,7 +3,8 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-const API = axios.create({ baseURL: '/api' });
+const apiBaseUrl = import.meta.env.VITE_API_URL || '/api';
+const API = axios.create({ baseURL: apiBaseUrl });
 
 API.interceptors.request.use(config => {
   const token = localStorage.getItem('tf_token');

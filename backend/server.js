@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3001;
 const dataDir = process.env.DB_PATH || path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
+const { seedDatabase } = require('./seed');
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true,
@@ -21,6 +23,14 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/projects/:projectId/tasks', require('./routes/tasks'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+
+(async () => {
+  try {
+    await seedDatabase();
+  } catch (err) {
+    console.error('Failed to seed demo data:', err);
+  }
+})();
 
 // Serve frontend in production
 // Check both relative paths (for local dev and Railway deployment)
